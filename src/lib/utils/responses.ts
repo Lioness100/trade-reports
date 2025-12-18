@@ -1,0 +1,103 @@
+import {
+	EmbedBuilder,
+	italic,
+	type ActionRow,
+	type MessageActionRowComponent,
+	type RepliableInteraction,
+	type InteractionReplyOptions,
+	ComponentType,
+	ButtonStyle,
+	Colors,
+	type CommandInteraction,
+	type MessageComponentInteraction,
+	type ModalBuilder,
+	type InteractionEditReplyOptions
+} from 'discord.js';
+import { type CustomId } from '#utils/customIds';
+
+export const safelyReply = (
+	interaction: RepliableInteraction,
+	payload: InteractionReplyOptions & InteractionEditReplyOptions
+) => {
+	if (interaction.deferred) {
+		return interaction.editReply(payload);
+	}
+
+	if (interaction.replied) {
+		return interaction.followUp(payload);
+	}
+
+	return interaction.reply(payload);
+};
+
+export const createEmbed = (description?: string, color = 0xe6_7e_22) => {
+	return new EmbedBuilder({ color, description });
+};
+
+export const sendSuccess = async (
+	interaction: RepliableInteraction,
+	description: string,
+	options: { emoji?: string; ephemeral?: boolean } = {}
+) => {
+	const embed = createEmbed(`${options.emoji ?? '✅'} ${description}`);
+	return safelyReply(interaction, { embeds: [embed], ephemeral: options.ephemeral ?? false });
+};
+
+export const sendError = (
+	interaction: RepliableInteraction,
+	description: string,
+	options: { ephemeral?: boolean; prefix?: string; tip?: string } = {}
+) => {
+	const formattedError = `${options.prefix ?? '❌'} ${description.replace(/[!.?]*$/, '!')}`;
+	const formattedDescription = `${formattedError}${options.tip ? `\n${italic(`💡${options.tip}`)}` : ''}`;
+
+	return safelyReply(interaction, {
+		embeds: [createEmbed(formattedDescription, Colors.Red)],
+		ephemeral: options.ephemeral ?? true
+	});
+};
+
+export const disableComponents = (
+	rows: ActionRow<MessageActionRowComponent>[],
+	options?: { enableOnly?: CustomId[]; preserveColorForOnly?: CustomId[] }
+) => {
+	for (const row of rows) {
+		for (const component of row.components) {
+			if (options?.preserveColorForOnly && component.type === ComponentType.Button) {
+				const preserveColor = options.preserveColorForOnly.some((customId) =>
+					component.customId?.startsWith(customId.toString())
+				);
+
+				if (!preserveColor) {
+					Reflect.set(component.data, 'style', ButtonStyle.Secondary);
+				}
+			}
+
+			if (options?.enableOnly && component.type === ComponentType.Button) {
+				const enableOnly = options.enableOnly.some((customId) =>
+					component.customId?.startsWith(customId.toString())
+				);
+
+				if (!enableOnly) {
+					Reflect.set(component.data, 'disabled', false);
+					continue;
+				}
+			}
+
+			Reflect.set(component.data, 'disabled', true);
+		}
+	}
+
+	return rows;
+};
+
+export const awaitModalSubmit = async (
+	interaction: CommandInteraction | MessageComponentInteraction,
+	modal: ModalBuilder
+) => {
+	await interaction.showModal(modal);
+	return interaction.awaitModalSubmit({
+		time: 0,
+		filter: (interaction) => interaction.customId === modal.data.custom_id
+	});
+};

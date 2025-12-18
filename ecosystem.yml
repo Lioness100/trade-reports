@@ -1,0 +1,6 @@
+apps:
+  - script: './dist/index.js'
+    name: 'trade-reports'
+    node_args: '--enable-source-maps'
+    env: { 'NODE_ENV': 'production' }
+    time: true

@@ -23,22 +23,11 @@ function getNextBusinessDay(date: Date = new Date()): string {
 
 @ApplyOptions<Listener.Options>({ once: true, event: Events.ClientReady })
 export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> {
-	private readonly lastStatusMessageIds = new Map<string, string>();
 	private lastMessageSent: { date: string; type: string } | null = null;
 
 	public async run() {
-		await getOrCreateSignalsSheet()
-			.then(() => {
-				this.container.logger.info('[Signals] Successfully initialized signals sheet');
-			})
-			.catch((error) => {
-				this.container.logger.error('[Signals] Failed to initialize signals sheet:', error);
-			});
-
-		this.container.logger.info(`[Signals] Starting to poll every ${POLL_INTERVAL_MS / 1000} seconds`);
+		await getOrCreateSignalsSheet();
 		this.pollForSignals();
-
-		this.container.logger.info('[Signals] Starting scheduled message checks');
 		this.pollScheduledMessages();
 	}
 
@@ -74,6 +63,22 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 		return channels;
 	}
 
+	private async deleteLastStatusMessage(channel: TextChannel) {
+		const messages = await channel.messages.fetch({ limit: 10 }).catch(() => null);
+		if (!messages) {
+			return;
+		}
+
+		const botMessage = messages.find(
+			(msg) =>
+				msg.author.id === this.container.client.user?.id &&
+				msg.embeds.length > 0 &&
+				msg.embeds[0].description?.startsWith('Bobby')
+		);
+
+		await botMessage?.delete().catch(() => null);
+	}
+
 	private async checkAndSendScheduledMessages() {
 		const etTime = new Date();
 		const hours = etTime.getHours();
@@ -91,11 +96,7 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 
 		if (dayOfWeek >= 1 && dayOfWeek <= 5 && hours === 9 && minutes === 30) {
 			for (const channel of channels) {
-				const lastMessageId = this.lastStatusMessageIds.get(channel.guild.id);
-				if (lastMessageId) {
-					const messageToDelete = await channel.messages.fetch(lastMessageId);
-					await messageToDelete?.delete().catch(() => null);
-				}
+				await this.deleteLastStatusMessage(channel);
 			}
 
 			return;
@@ -123,19 +124,10 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 
 			if (shouldSend) {
 				for (const channel of channels) {
-					const lastMessageId = this.lastStatusMessageIds.get(channel.guild.id);
-					if (lastMessageId) {
-						const messageToDelete = await channel.messages.fetch(lastMessageId);
-						await messageToDelete?.delete();
-					}
+					await this.deleteLastStatusMessage(channel);
 
 					const embed = createEmbed(messageToSend).setColor(0x00_7a_cc);
-					const sentMessage = await channel.send({ embeds: [embed] }).catch(() => null);
-					if (!sentMessage) {
-						continue;
-					}
-
-					this.lastStatusMessageIds.set(channel.guild.id, sentMessage.id);
+					await channel.send({ embeds: [embed] }).catch(() => null);
 				}
 
 				this.lastMessageSent = { type: messageType, date: dateKey };

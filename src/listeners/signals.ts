@@ -70,7 +70,7 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 	}
 
 	private async deleteLastStatusMessage(channel: TextChannel) {
-		const messages = await channel.messages.fetch({ limit: 10 }).catch(() => null);
+		const messages = await channel.messages.fetch({ limit: 10 }).catch(console.error);
 		if (!messages) {
 			return;
 		}
@@ -135,7 +135,7 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 					await this.deleteLastStatusMessage(channel);
 
 					const embed = createEmbed(messageToSend).setColor(0x00_7a_cc);
-					await channel.send({ embeds: [embed] }).catch(() => null);
+					await channel.send({ embeds: [embed] }).catch(console.error);
 				}
 
 				this.lastMessageSent = { type: messageType, date: dateKey };
@@ -162,7 +162,7 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 			).setColor(0xff_a5_00);
 
 			for (const channel of channels) {
-				await channel.send({ content: signalMessage, embeds: [disclaimerEmbed] }).catch(() => null);
+				await channel.send({ content: signalMessage, embeds: [disclaimerEmbed] }).catch(console.error);
 			}
 
 			await markSignalAsSent(rowIndex);

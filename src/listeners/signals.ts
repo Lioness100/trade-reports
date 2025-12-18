@@ -1,7 +1,13 @@
 import { TextChannel } from 'discord.js';
 import { Events, Listener } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
-import { formatSignalMessage, getOrCreateSignalsSheet, getReadySignals, markSignalAsSent } from '#utils/signals';
+import {
+	formatSignalMessage,
+	getOrCreateSignalsSheet,
+	getReadySignals,
+	getScheduledMessages,
+	markSignalAsSent
+} from '#utils/signals';
 import { createEmbed } from '#utils/responses';
 
 const POLL_INTERVAL_MS = 30_000;
@@ -104,16 +110,18 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 
 		if (dayOfWeek >= 1 && dayOfWeek <= 5 && hours === 10 && minutes === 45) {
 			const nextBusinessDay = getNextBusinessDay(etTime);
+			const messages = await getScheduledMessages();
 			if (dayOfWeek === 5) {
 				messageType = 'weekend';
-				messageToSend = `Bobby is resting, see you on Monday morning. Bobby Trend Score reopens at 9:30am ET on ${nextBusinessDay}.`;
+				messageToSend = messages.weekend.replace('{nextBusinessDay}', nextBusinessDay);
 			} else {
 				messageType = 'closing';
-				messageToSend = `Bobby Trend Score reopens at 9:30am ET on ${nextBusinessDay}.`;
+				messageToSend = messages.closing.replace('{nextBusinessDay}', nextBusinessDay);
 			}
 		} else if (dayOfWeek >= 1 && dayOfWeek <= 5 && hours === 0 && minutes === 0) {
 			messageType = 'midnight';
-			messageToSend = 'Bobby Trend Score will open at 9:30am ET today.';
+			const messages = await getScheduledMessages();
+			messageToSend = messages.midnight;
 		}
 
 		if (messageToSend && messageType) {

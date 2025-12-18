@@ -1,3 +1,4 @@
+/* eslint-disable require-atomic-updates */
 import { GoogleSpreadsheet, type GoogleSpreadsheetWorksheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
 import { env } from '#root/config';
@@ -146,4 +147,70 @@ export function formatSignalMessage(data: SignalData): string {
 	lines.push(`**Reverse Signal Detected?:** ${data.reverseSignalDetected}`);
 
 	return lines.join('\n');
+}
+
+export interface ScheduledMessages {
+	closing: string;
+	midnight: string;
+	weekend: string;
+}
+
+const MESSAGES_SHEET_NAME = 'Messages';
+const MESSAGES_HEADERS = ['Type', 'Message'];
+const DEFAULT_MESSAGES: ScheduledMessages = {
+	closing: 'Bobby Trend Score reopens at 9:30am ET on {nextBusinessDay}.',
+	midnight: 'Bobby Trend Score will open at 9:30am ET today.',
+	weekend: 'Bobby is resting, see you on Monday morning. Bobby Trend Score reopens at 9:30am ET on {nextBusinessDay}.'
+};
+
+export async function getScheduledMessages(): Promise<ScheduledMessages> {
+	const spreadsheet = await getSpreadsheet();
+
+	let sheet = spreadsheet.sheetsByTitle[MESSAGES_SHEET_NAME];
+
+	if (!sheet) {
+		sheet = await spreadsheet.addSheet({
+			title: MESSAGES_SHEET_NAME,
+			headerValues: MESSAGES_HEADERS
+		});
+
+		await sheet.addRows([
+			{ Type: 'closing', Message: DEFAULT_MESSAGES.closing },
+			{ Type: 'midnight', Message: DEFAULT_MESSAGES.midnight },
+			{ Type: 'weekend', Message: DEFAULT_MESSAGES.weekend }
+		]);
+
+		return { ...DEFAULT_MESSAGES };
+	}
+
+	await sheet.loadHeaderRow().catch(async () => {
+		await sheet.setHeaderRow(MESSAGES_HEADERS);
+	});
+
+	const rows = await sheet.getRows();
+
+	const messages: ScheduledMessages = { ...DEFAULT_MESSAGES };
+	const foundTypes = new Set<string>();
+
+	for (const row of rows) {
+		const type = row.get('Type') as keyof ScheduledMessages;
+		const message = row.get('Message');
+
+		if (type && message && type in DEFAULT_MESSAGES) {
+			messages[type] = message;
+			foundTypes.add(type);
+		}
+	}
+
+	const missingTypes = Object.keys(DEFAULT_MESSAGES).filter((t) => !foundTypes.has(t));
+	if (missingTypes.length > 0) {
+		await sheet.addRows(
+			missingTypes.map((type) => ({
+				Type: type,
+				Message: DEFAULT_MESSAGES[type as keyof ScheduledMessages]
+			}))
+		);
+	}
+
+	return messages;
 }

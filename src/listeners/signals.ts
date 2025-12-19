@@ -58,7 +58,7 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 
 		for (const guild of this.container.client.guilds.cache.values()) {
 			const channel = guild.channels.cache.find(
-				(ch) => ch.name === 'bobbypro-signals' && ch instanceof TextChannel && ch.id === '1450998624572932388'
+				(ch) => ch.name === 'bobbypro-signals' && ch instanceof TextChannel
 			) as TextChannel | undefined;
 
 			if (channel) {
@@ -116,11 +116,10 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 			return;
 		}
 
-		if (dayOfWeek >= 1 && dayOfWeek <= 5 && hours === 11 && minutes === 42) {
+		if (dayOfWeek >= 1 && dayOfWeek <= 5 && hours === 10 && minutes === 45) {
 			const nextBusinessDay = getNextBusinessDay(etTime);
-			console.log(1);
 			const messages = await getScheduledMessages();
-			console.log(2);
+
 			if (dayOfWeek === 5) {
 				messageType = 'weekend';
 				messageToSend = messages.weekend.replace('{nextBusinessDay}', nextBusinessDay);

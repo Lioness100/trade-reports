@@ -164,39 +164,29 @@ const DEFAULT_MESSAGES: ScheduledMessages = {
 };
 
 export async function getScheduledMessages(): Promise<ScheduledMessages> {
-	console.log(4);
 	const spreadsheet = await getSpreadsheet();
-	console.log(5);
 	let sheet = spreadsheet.sheetsByTitle[MESSAGES_SHEET_NAME];
 
 	if (!sheet) {
-		console.log(6);
 		sheet = await spreadsheet.addSheet({
 			title: MESSAGES_SHEET_NAME,
 			headerValues: MESSAGES_HEADERS
 		});
-		console.log(7);
 
 		await sheet.addRows([
 			{ Type: 'closing', Message: DEFAULT_MESSAGES.closing },
 			{ Type: 'midnight', Message: DEFAULT_MESSAGES.midnight },
 			{ Type: 'weekend', Message: DEFAULT_MESSAGES.weekend }
 		]);
-		console.log(8);
 
 		return { ...DEFAULT_MESSAGES };
 	}
 
-	console.log(9);
 	await sheet.loadHeaderRow().catch(async () => {
-		console.log(10);
 		await sheet.setHeaderRow(MESSAGES_HEADERS);
 	});
 
-	console.log(11);
-
 	const rows = await sheet.getRows();
-	console.log(12);
 	const messages: ScheduledMessages = { ...DEFAULT_MESSAGES };
 	const foundTypes = new Set<string>();
 
@@ -212,7 +202,6 @@ export async function getScheduledMessages(): Promise<ScheduledMessages> {
 
 	const missingTypes = Object.keys(DEFAULT_MESSAGES).filter((t) => !foundTypes.has(t));
 	if (missingTypes.length > 0) {
-		console.log(13);
 		await sheet.addRows(
 			missingTypes.map((type) => ({
 				Type: type,

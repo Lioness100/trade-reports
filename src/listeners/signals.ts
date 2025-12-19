@@ -86,7 +86,7 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 	}
 
 	private async checkAndSendScheduledMessages() {
-		const etTime = new Date();
+		const etTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
 		const hours = etTime.getHours();
 		const minutes = etTime.getMinutes();
 		const dayOfWeek = etTime.getDay();
@@ -116,7 +116,7 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 			return;
 		}
 
-		if (dayOfWeek >= 1 && dayOfWeek <= 5 && hours === 11 && minutes === 31) {
+		if (dayOfWeek >= 1 && dayOfWeek <= 5 && hours === 11 && minutes === 33) {
 			const nextBusinessDay = getNextBusinessDay(etTime);
 			const messages = await getScheduledMessages();
 			if (dayOfWeek === 5) {

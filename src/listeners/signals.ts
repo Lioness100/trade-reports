@@ -92,15 +92,23 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 		const dayOfWeek = etTime.getDay();
 		const dateKey = etTime.toDateString();
 
+		this.container.logger.debug(
+			`[Signals] Checking scheduled messages - ET Time: ${hours}:${minutes}, Day: ${dayOfWeek}`
+		);
+
 		const channels = this.getSignalsChannels();
 		if (channels.length === 0) {
+			this.container.logger.debug('[Signals] No bobbypro-signals channels found in any server');
 			return;
 		}
+
+		this.container.logger.debug(`[Signals] Found ${channels.length} signals channel(s) across servers`);
 
 		let messageToSend: string | null = null;
 		let messageType: string | null = null;
 
 		if (dayOfWeek >= 1 && dayOfWeek <= 5 && hours === 9 && minutes === 30) {
+			this.container.logger.debug('[Signals] Market opening - deleting previous status messages');
 			for (const channel of channels) {
 				await this.deleteLastStatusMessage(channel);
 			}
@@ -118,10 +126,12 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 				messageType = 'closing';
 				messageToSend = messages.closing.replace('{nextBusinessDay}', nextBusinessDay);
 			}
+			this.container.logger.debug(`[Signals] Prepared ${messageType} message: ${messageToSend}`);
 		} else if (dayOfWeek >= 1 && dayOfWeek <= 5 && hours === 0 && minutes === 0) {
 			messageType = 'midnight';
 			const messages = await getScheduledMessages();
 			messageToSend = messages.midnight;
+			this.container.logger.debug(`[Signals] Prepared ${messageType} message: ${messageToSend}`);
 		}
 
 		if (messageToSend && messageType) {
@@ -130,12 +140,17 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 				this.lastMessageSent.type !== messageType ||
 				this.lastMessageSent.date !== dateKey;
 
+			this.container.logger.debug(
+				`[Signals] Should send ${messageType} message: ${shouldSend} (last: ${JSON.stringify(this.lastMessageSent)})`
+			);
+
 			if (shouldSend) {
 				for (const channel of channels) {
 					await this.deleteLastStatusMessage(channel);
 
 					const embed = createEmbed(messageToSend).setColor(0x00_7a_cc);
 					await channel.send({ embeds: [embed] }).catch(console.error);
+					this.container.logger.debug(`[Signals] Sent ${messageType} message to ${channel.guild.name}`);
 				}
 
 				this.lastMessageSent = { type: messageType, date: dateKey };

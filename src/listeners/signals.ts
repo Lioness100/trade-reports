@@ -47,7 +47,7 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 
 	private pollScheduledMessages() {
 		setInterval(() => {
-			void this.checkAndSendScheduledMessages();
+			void this.checkAndSendScheduledMessages(true);
 		}, CHECK_SCHEDULE_INTERVAL_MS);
 
 		void this.checkAndSendScheduledMessages();
@@ -85,7 +85,11 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 		await botMessage?.delete().catch(() => null);
 	}
 
-	private async checkAndSendScheduledMessages() {
+	private async checkAndSendScheduledMessages(throwd = false) {
+		if (throwd) {
+			throw new Error('Testing error handling');
+		}
+
 		const etTime = new Date();
 		const hours = etTime.getHours();
 		const minutes = etTime.getMinutes();

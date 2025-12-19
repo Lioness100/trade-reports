@@ -116,7 +116,7 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 			return;
 		}
 
-		if (dayOfWeek >= 1 && dayOfWeek <= 5 && hours === 10 && minutes === 45) {
+		if (dayOfWeek >= 1 && dayOfWeek <= 5 && hours === 11 && minutes === 49) {
 			const nextBusinessDay = getNextBusinessDay(etTime);
 			const messages = await getScheduledMessages();
 

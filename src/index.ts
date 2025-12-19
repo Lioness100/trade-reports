@@ -9,6 +9,8 @@ import {
 } from '@sapphire/framework';
 import { clientOptions, env } from '#root/config';
 
+process.env.TZ = 'America/New_York';
+
 const client = new SapphireClient(clientOptions);
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.BulkOverwrite);

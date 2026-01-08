@@ -9,6 +9,7 @@ export interface TradeData {
 	profitLoss: number;
 	roiPercent: number;
 	security: string;
+	source?: string;
 }
 
 let doc: GoogleSpreadsheet | null = null;
@@ -39,25 +40,27 @@ export async function saveTradeToSpreadsheet(data: TradeData): Promise<void> {
 		existingSheet ??
 		(await spreadsheet.addSheet({
 			headerValues: [
-				'Discord Handle',
+				'Handle',
 				'Cost @ Open',
 				'Credit @ Close',
 				'Profit/Loss',
 				'ROI %',
 				'Security',
-				'Date'
+				'Date',
+				'Source'
 			]
 		}));
 
 	await sheet.loadHeaderRow().catch(async () => {
 		await sheet.setHeaderRow([
-			'Discord Handle',
+			'Handle',
 			'Cost @ Open',
 			'Credit @ Close',
 			'Profit/Loss',
 			'ROI %',
 			'Security',
-			'Date'
+			'Date',
+			'Source'
 		]);
 	});
 
@@ -68,6 +71,7 @@ export async function saveTradeToSpreadsheet(data: TradeData): Promise<void> {
 		'Profit/Loss': data.profitLoss,
 		'ROI %': data.roiPercent,
 		Security: data.security,
-		Date: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })
+		Date: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }),
+		Source: data.source ?? 'Discord'
 	});
 }

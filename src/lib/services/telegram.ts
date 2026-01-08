@@ -4,6 +4,7 @@ import { env } from '#root/config';
 import type { SignalData } from '#utils/signals';
 import { generateScoreCardImage } from '#utils/canvas';
 import { calculateProfitLoss, calculateROI, validateTradeInput } from '#utils/trades';
+import { saveTradeToSpreadsheet } from '#utils/spreadsheet';
 
 class TelegramService {
 	private bot: Bot | null = null;
@@ -80,6 +81,15 @@ class TelegramService {
 				);
 
 				await ctx.replyWithPhoto(new InputFile(buffer, 'pro-scorecard.png'));
+				await saveTradeToSpreadsheet({
+					discordHandle: username,
+					costAtOpen,
+					creditAtClose,
+					profitLoss,
+					roiPercent,
+					security: 'SPY',
+					source: 'Telegram'
+				});
 			} catch (error) {
 				container.logger.error('[Telegram] Error generating scorecard:', error);
 				await ctx.reply('Error generating scorecard. Please try again later.');

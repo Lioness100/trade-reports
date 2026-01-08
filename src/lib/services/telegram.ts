@@ -87,7 +87,9 @@ class TelegramService {
 		});
 
 		// Set bot commands menu
-		void this.bot.api.setMyCommands([{ command: 'pro_scorecard', description: 'Generate a trade score card' }]);
+		void this.bot.api.setMyCommands([
+			{ command: 'bobbypro-scorecard', description: 'Generate a trade score card' }
+		]);
 	}
 
 	private startPolling() {

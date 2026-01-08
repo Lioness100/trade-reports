@@ -32,7 +32,7 @@ class TelegramService {
 		}
 
 		// /pro-scorecard command
-		this.bot.command('pro_scorecard', async (ctx) => {
+		this.bot.command('bobbypro-scorecard', async (ctx) => {
 			const args = ctx.message?.text?.split(' ').slice(1) ?? [];
 
 			if (args.length < 2) {

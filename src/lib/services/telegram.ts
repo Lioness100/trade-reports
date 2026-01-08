@@ -91,7 +91,7 @@ class TelegramService {
 					roiPercent,
 					security: 'SPY',
 					source: 'Telegram',
-					channelName: `@${ctx.chat.title ?? ctx.chat.username ?? ctx.chat.id.toString()}`
+					channelName: ctx.chat.title ?? ctx.chat.username ?? ctx.chat.id.toString()
 				});
 
 				await ctx.replyWithPhoto(new InputFile(buffer, 'pro-scorecard.png'));

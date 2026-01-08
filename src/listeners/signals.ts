@@ -34,7 +34,7 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 
 	public async run() {
 		await getOrCreateSignalsSheet();
-		telegramService.initialize();
+		await telegramService.initialize();
 		this.pollForSignals();
 		this.pollScheduledMessages();
 	}

@@ -10,7 +10,7 @@ class TelegramService {
 	private bot: Bot | null = null;
 	private chatId: string | null = null;
 
-	public initialize() {
+	public async initialize() {
 		if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
 			container.logger.warn(
 				'[Telegram] Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID - Telegram integration disabled'
@@ -21,19 +21,20 @@ class TelegramService {
 		this.chatId = env.TELEGRAM_CHAT_ID;
 		this.bot = new Bot(env.TELEGRAM_BOT_TOKEN);
 
-		this.registerCommands();
-		this.startPolling();
+		await this.registerCommands();
+		await this.startPolling();
 
 		container.logger.info('[Telegram] Bot initialized successfully');
 	}
 
-	private registerCommands() {
+	private async registerCommands() {
 		if (!this.bot) {
 			return;
 		}
 
 		// /pro-scorecard command
 		this.bot.command('bobbypro_scorecard', async (ctx) => {
+			console.log('Received /bobbypro_scorecard command');
 			const args = ctx.message?.text?.split(' ').slice(1) ?? [];
 
 			if (args.length < 2) {
@@ -80,8 +81,7 @@ class TelegramService {
 					'telegram'
 				);
 
-				await ctx.replyWithPhoto(new InputFile(buffer, 'pro-scorecard.png'));
-				await saveTradeToSpreadsheet({
+				void saveTradeToSpreadsheet({
 					discordHandle: username,
 					costAtOpen,
 					creditAtClose,
@@ -90,11 +90,15 @@ class TelegramService {
 					security: 'SPY',
 					source: 'Telegram'
 				});
+
+				await ctx.replyWithPhoto(new InputFile(buffer, 'pro-scorecard.png'));
 			} catch (error) {
 				container.logger.error('[Telegram] Error generating scorecard:', error);
 				await ctx.reply('Error generating scorecard. Please try again later.');
 			}
 		});
+
+		this.bot.on('message', (ctx) => ctx.reply('Got another message!'));
 
 		// Set bot commands menu
 		void this.bot.api.setMyCommands([
@@ -102,12 +106,12 @@ class TelegramService {
 		]);
 	}
 
-	private startPolling() {
+	private async startPolling() {
 		if (!this.bot) {
 			return;
 		}
 
-		this.bot.start({
+		void this.bot.start({
 			onStart: () => {
 				container.logger.info('[Telegram] Bot started polling for updates');
 			}

@@ -40,7 +40,8 @@ export class ProScoreCardCommand extends Command {
 			creditAtClose,
 			profitLoss,
 			roiPercent,
-			security: 'SPY'
+			security: 'SPY',
+			channelName: interaction.guild?.name ?? 'Direct Message'
 		});
 	}
 

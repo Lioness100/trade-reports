@@ -3,6 +3,7 @@ import { JWT } from 'google-auth-library';
 import { env } from '#root/config';
 
 export interface TradeData {
+	channelName: string;
 	costAtOpen: number;
 	creditAtClose: number;
 	discordHandle: string;
@@ -47,7 +48,8 @@ export async function saveTradeToSpreadsheet(data: TradeData): Promise<void> {
 				'ROI %',
 				'Security',
 				'Date',
-				'Source'
+				'Source',
+				'Channel Name'
 			]
 		}));
 
@@ -60,7 +62,8 @@ export async function saveTradeToSpreadsheet(data: TradeData): Promise<void> {
 			'ROI %',
 			'Security',
 			'Date',
-			'Source'
+			'Source',
+			'Channel Name'
 		]);
 	});
 
@@ -72,6 +75,7 @@ export async function saveTradeToSpreadsheet(data: TradeData): Promise<void> {
 		'ROI %': data.roiPercent,
 		Security: data.security,
 		Date: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }),
-		Source: data.source ?? 'Discord'
+		Source: data.source ?? 'Discord',
+		'Channel Name': data.channelName
 	});
 }

@@ -81,6 +81,8 @@ class TelegramService {
 					'telegram'
 				);
 
+				console.log(ctx.chat);
+
 				void saveTradeToSpreadsheet({
 					discordHandle: username,
 					costAtOpen,

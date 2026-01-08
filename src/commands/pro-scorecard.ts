@@ -41,7 +41,7 @@ export class ProScoreCardCommand extends Command {
 			profitLoss,
 			roiPercent,
 			security: 'SPY',
-			channelName: interaction.guild?.name ?? 'Direct Message'
+			channelName: interaction.guild?.name ?? `@${interaction.user.username}`
 		});
 	}
 

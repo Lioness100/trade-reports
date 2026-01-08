@@ -37,8 +37,8 @@ class TelegramService {
 
 			if (args.length < 2) {
 				await ctx.reply(
-					'Usage: /pro_scorecard <cost-at-open> <credit-at-close> [mode]\n\n' +
-						'Example: /pro_scorecard 1000 1250\n\n' +
+					'Usage: /bobbypro_scorecard <cost-at-open> <credit-at-close> [mode]\n\n' +
+						'Example: /bobbypro_scorecard 1000 1250\n\n' +
 						'Parameters:\n' +
 						'• cost-at-open: The cost at the opening of the trade\n' +
 						'• credit-at-close: The credit at the closing of the trade\n' +

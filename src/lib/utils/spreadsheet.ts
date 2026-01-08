@@ -65,7 +65,7 @@ export async function saveTradeToSpreadsheet(data: TradeData): Promise<void> {
 	});
 
 	await sheet.addRow({
-		'Discord Handle': data.discordHandle,
+		Handle: data.discordHandle,
 		'Cost @ Open': data.costAtOpen,
 		'Credit @ Close': data.creditAtClose,
 		'Profit/Loss': data.profitLoss,

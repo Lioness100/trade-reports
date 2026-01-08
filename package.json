@@ -32,6 +32,7 @@
     "fuse.js": "^7.1.0",
     "google-auth-library": "^10.5.0",
     "google-spreadsheet": "^5.0.2",
+    "grammy": "^1.39.2",
     "tslog": "^4.10.2"
   },
   "optionalDependencies": {

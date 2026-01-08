@@ -1,6 +1,7 @@
 import { TextChannel } from 'discord.js';
 import { Events, Listener } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
+import { telegramService } from '../lib/services/telegram';
 import {
 	formatSignalMessage,
 	getOrCreateSignalsSheet,
@@ -33,6 +34,7 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 
 	public async run() {
 		await getOrCreateSignalsSheet();
+		telegramService.initialize();
 		this.pollForSignals();
 		this.pollScheduledMessages();
 	}
@@ -154,6 +156,10 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 					this.container.logger.debug(`[Signals] Sent ${messageType} message to ${channel.guild.name}`);
 				}
 
+				await telegramService.sendScheduledMessage(messageToSend).catch((error) => {
+					this.container.logger.error('[Signals] Telegram scheduled message error:', error);
+				});
+
 				this.lastMessageSent = { type: messageType, date: dateKey };
 			}
 		}
@@ -180,6 +186,10 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 			for (const channel of channels) {
 				await channel.send({ content: signalMessage, embeds: [disclaimerEmbed] }).catch(console.error);
 			}
+
+			await telegramService.sendSignal(data).catch((error) => {
+				this.container.logger.error('[Signals] Telegram signal error:', error);
+			});
 
 			await markSignalAsSent(rowIndex);
 		}

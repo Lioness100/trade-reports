@@ -13,7 +13,9 @@ export const env = cleanEnv(process.env, {
 	DEV_SERVER_ID: str({ default: '' }),
 	GOOGLE_SERVICE_ACCOUNT_EMAIL: str({ desc: 'Google service account email for Sheets API' }),
 	GOOGLE_PRIVATE_KEY: str({ desc: 'Google service account private key for Sheets API' }),
-	GOOGLE_SPREADSHEET_ID: str({ desc: 'The ID of the Google Spreadsheet to save trade data' })
+	GOOGLE_SPREADSHEET_ID: str({ desc: 'The ID of the Google Spreadsheet to save trade data' }),
+	TELEGRAM_BOT_TOKEN: str({ default: '', desc: 'Telegram bot token from BotFather' }),
+	TELEGRAM_CHAT_ID: str({ default: '', desc: 'Telegram channel/group chat ID for signals' })
 });
 
 export const clientOptions: ClientOptions = {

@@ -12,9 +12,15 @@ registerFont('assets/Inter-Regular.ttf', { family: 'Inter', weight: '400' });
 registerFont('assets/Inter-SemiBold.ttf', { family: 'Inter', weight: '600' });
 registerFont('assets/Inter-Bold.ttf', { family: 'Inter', weight: '700' });
 
-export async function generateScoreCardImage(options: ScoreCardOptions) {
+export async function generateScoreCardImage(
+	options: ScoreCardOptions,
+	service: 'discord' | 'telegram' = 'discord'
+): Promise<Buffer> {
 	const { mode, profitLoss, roiPercent, security, discordHandle } = options;
-	const templatePath = mode === 'dark' ? 'assets/dark.png' : 'assets/light.png';
+	const templatePath =
+		mode === 'dark'
+			? `assets/dark${service === 'telegram' ? '-telegram' : ''}.png`
+			: `assets/light${service === 'telegram' ? '-telegram' : ''}.png`;
 	const templateImage = await loadImage(templatePath);
 
 	const canvasWidth = templateImage.width;

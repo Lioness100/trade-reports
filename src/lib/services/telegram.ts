@@ -32,7 +32,7 @@ class TelegramService {
 		}
 
 		// /pro-scorecard command
-		this.bot.command('bobbypro-scorecard', async (ctx) => {
+		this.bot.command('bobbypro_scorecard', async (ctx) => {
 			const args = ctx.message?.text?.split(' ').slice(1) ?? [];
 
 			if (args.length < 2) {
@@ -88,7 +88,7 @@ class TelegramService {
 
 		// Set bot commands menu
 		void this.bot.api.setMyCommands([
-			{ command: 'bobbypro-scorecard', description: 'Generate a trade score card' }
+			{ command: 'bobbypro_scorecard', description: 'Generate a trade score card' }
 		]);
 	}
 

@@ -184,7 +184,7 @@ export class SignalsMonitorListener extends Listener<typeof Events.ClientReady> 
 			).setColor(0xff_a5_00);
 
 			for (const channel of channels) {
-				// Await channel.send({ content: signalMessage, embeds: [disclaimerEmbed] }).catch(console.error);
+				await channel.send({ content: signalMessage, embeds: [disclaimerEmbed] }).catch(console.error);
 			}
 
 			await telegramService.sendSignal(data).catch((error) => {

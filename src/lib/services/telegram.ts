@@ -81,8 +81,6 @@ class TelegramService {
 					'telegram'
 				);
 
-				console.log(ctx.chat);
-
 				void saveTradeToSpreadsheet({
 					discordHandle: username,
 					costAtOpen,
@@ -101,7 +99,11 @@ class TelegramService {
 			}
 		});
 
-		this.bot.on('message', (ctx) => ctx.reply('Got another message!'));
+		this.bot.on('message:new_chat_members', async (ctx) => {
+			await ctx.reply(
+				`Welcome, BobbyPRO is how Bobby is experienced together. Daily Signals will be posted on this telegram channel.`
+			);
+		});
 
 		// Set bot commands menu
 		void this.bot.api.setMyCommands([

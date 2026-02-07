@@ -14,13 +14,11 @@ registerFont('assets/Inter-Bold.ttf', { family: 'Inter', weight: '700' });
 
 export async function generateScoreCardImage(
 	options: ScoreCardOptions,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	service: 'discord' | 'telegram' = 'discord'
 ): Promise<Buffer> {
 	const { mode, profitLoss, roiPercent, security, discordHandle } = options;
-	const templatePath =
-		mode === 'dark'
-			? `assets/dark${service === 'telegram' ? '-telegram' : ''}.png`
-			: `assets/light${service === 'telegram' ? '-telegram' : ''}.png`;
+	const templatePath = mode === 'dark' ? `assets/dark-rocket.png` : `assets/light-rocket.png`;
 	const templateImage = await loadImage(templatePath);
 
 	const canvasWidth = templateImage.width;
@@ -53,7 +51,7 @@ export async function generateScoreCardImage(
 	ctx.fillText(`Securities: ${security}`, 160, 610);
 
 	ctx.font = '400 34px Inter';
-	ctx.fillText(`@${discordHandle}`, 230, 688);
+	ctx.fillText(`Bobby Trader`, 230, 688);
 
 	return canvas.toBuffer();
 }
